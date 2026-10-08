@@ -1,0 +1,13 @@
+name: Reproduce pinned behavior
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run seven synthetic CLI fixtures
+        run: python3 run_repro.py

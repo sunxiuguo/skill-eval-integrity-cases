@@ -1,0 +1,6 @@
+Skill Eval Integrity Cases
+Original harness and synthetic fixtures: Copyright 2026 skill-eval-integrity-cases contributors. Licensed under Apache-2.0.
+
+Includes the unchanged aggregate_benchmark.py from anthropics/skills at commit 683bc88e56f3e09ba94f7055977f3d3aa499f202.
+Upstream skill-creator: Copyright 2026 Anthropic, PBC. Apache-2.0 license retained verbatim at vendor/LICENSE.txt.
+Source provenance and hashes are recorded in source-provenance.json.
