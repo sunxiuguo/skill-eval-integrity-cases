@@ -11,3 +11,5 @@ jobs:
           persist-credentials: false
       - name: Run seven synthetic CLI fixtures
         run: python3 run_repro.py
+      - name: Run workflow compatibility fixtures
+        run: python3 run_workflow_repro.py

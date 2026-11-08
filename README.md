@@ -72,3 +72,43 @@ Do not submit competing fixes for those scopes. The pinned full repository tree 
 - No adoption, production impact, or economic benefit has been measured. These are characterization tests: a passing run confirms the pinned behavior, not that the behavior is desirable.
 - This is independent, unofficial work and is not affiliated with or endorsed by Anthropic.
 - Generated results stay local and are excluded from version control. Run commands above to inspect every fixture and actual CLI report.
+
+## Workflow compatibility supplement (2026-11-08)
+
+Run `python run_workflow_repro.py` and inspect `results/workflow-observations.json`.
+This separate supplement leaves the original seven cases unchanged and adds three
+known workflow gaps with a positive control. It uses the same unchanged vendor,
+verifies its Git blob, and runs synthetic fixtures in a temporary directory. Only
+its JSON receipt is retained under ignored `results/`; temporary fixtures are
+removed automatically. It captures stdout, stderr, exit code, JSON and Markdown.
+No model or customer data is used. No network APIs are called; OS-enforced network
+isolation was not independently verified.
+
+Candidate grades are 100% and baseline grades are 0%, one run per arm:
+
+| Case | Observed result (all exit 0) |
+|---|---|
+| Nested `eval-0/<config>/run-1` control | 2 runs, delta +1.00 |
+| Descriptive `list-group-members/<config>/run-1` | 0 runs, delta +0.00 |
+| Flat `eval-0/<config>/grading.json` | 0 runs, delta +0.00 |
+| Nested `with_skill` versus `old_skill` | 2 runs, delta -1.00 |
+
+These assertions characterize the pinned behavior, not desired correctness.
+A passing reproduction run does not mean the author workflow is compatible.
+The target workflow is a skill author following the existing iteration instructions
+through paired grading and interpretation of candidate-minus-baseline improvement.
+The instructions are internally inconsistent: the overview uses `eval-N`, while
+a later paragraph says to use descriptive names for directories. The documented
+descriptive names, flat outputs and `old_skill` baseline were read
+from upstream `SKILL.md` (blob `65b3a402dbd09b8e83f9d637c6b553875189085c`) on
+2026-11-08. The current aggregator blob still matched this pack's pin then.
+
+These are known reports, not novel discoveries or evidence of adoption:
+[issue #1383](https://github.com/anthropics/skills/issues/1383) describes the layout
+and inverted-delta problems and its author has local patches;
+[issue #518](https://github.com/anthropics/skills/issues/518) describes descriptive
+names and grading paths. A [contributor reports a built and tested fix](https://github.com/anthropics/skills/issues/518#issuecomment-6521483919).
+Do not use this evidence to create a competing fix or duplicate outreach.
+The eval viewer and these proposed patches were not executed here. This supplement
+is consumer-side reproducibility coverage, not a fix or a complete skill-author
+end-to-end test involving live agents.
