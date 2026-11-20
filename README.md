@@ -109,6 +109,53 @@ and inverted-delta problems and its author has local patches;
 [issue #518](https://github.com/anthropics/skills/issues/518) describes descriptive
 names and grading paths. A [contributor reports a built and tested fix](https://github.com/anthropics/skills/issues/518#issuecomment-6521483919).
 Do not use this evidence to create a competing fix or duplicate outreach.
-The eval viewer and these proposed patches were not executed here. This supplement
+The eval viewer and these proposed patches were not executed in that supplement. This supplement
 is consumer-side reproducibility coverage, not a fix or a complete skill-author
 end-to-end test involving live agents.
+
+## Standalone review handoff (2026-11-20)
+
+[Issue #1095](https://github.com/anthropics/skills/issues/1095) reports
+that the skill-creator viewer loses the prompt when metadata is stored once
+at the eval level. The aggregator and the viewer have different metadata
+lookup rules for nested runs.
+
+To reproduce separately from this pack, use an exact checkout of
+[`anthropics/skills` at `e4bb5d960d87126ff3b3a8af1a104b7db67560ba`](https://github.com/anthropics/skills/tree/e4bb5d960d87126ff3b3a8af1a104b7db67560ba/skills/skill-creator).
+Use a fresh synthetic iteration with one case `eval-0`, a shared
+`eval-0/eval_metadata.json` containing a nonempty prompt and `eval_id: 17`,
+and one run at `eval-0/<config>/run-1` for each of `with_skill` and
+`without_skill`. Give each run a plain-text answer under `outputs/`.
+For `with_skill/run-1/grading.json`, use this synthetic summary:
+
+```json
+{"summary":{"pass_rate":1,"passed":1,"failed":0,"total":1}}
+```
+
+For `without_skill/run-1/grading.json`, set `pass_rate`, `passed`, and
+`failed` to `0`, `0`, and `1` respectively, leaving `total` at `1`.
+Set `SKILL_CREATOR` to the upstream `skills/skill-creator` directory,
+`ITERATION` to the fixture, and `REVIEW_HTML` to a new output file:
+
+```sh
+python "$SKILL_CREATOR/scripts/aggregate_benchmark.py" "$ITERATION" --skill-name synthetic
+python "$SKILL_CREATOR/eval-viewer/generate_review.py" "$ITERATION" \
+  --benchmark "$ITERATION/benchmark.json" --skill-name synthetic --static "$REVIEW_HTML"
+```
+
+On Python 3.12.14, both commands exited 0. The benchmark contained two runs
+with eval ID 17, but the HTML's embedded `runs` had two `(No prompt found)`
+prompts and two null eval IDs. Exit status and benchmark rows alone do not
+tell the reviewer whether the task prompt survived.
+
+As a control, copy the shared metadata into **both** configuration
+directories (`eval-0/<config>/eval_metadata.json`) without removing the
+original. Run only the second command with a fresh HTML output path. Both
+prompts and IDs are then present; grades, answer files and the report's
+embedded benchmark are unchanged. If using this workaround, keep the
+copies identical to the shared metadata.
+
+This is a synthetic check of the generated HTML data, not a browser,
+feedback submission, or live skill evaluation. No viewer code is vendored
+here. The direct fix [PR #1226](https://github.com/anthropics/skills/pull/1226)
+was still open and was not run. This note does not propose a competing fix.
